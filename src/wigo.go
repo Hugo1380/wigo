@@ -281,6 +281,7 @@ func threadRemoteChecks(remoteWigos []wigo.AdvancedRemoteWigoConfig) {
 func threadCallbacks(chanCallbacks chan wigo.INotification) {
 	httpEnabled := wigo.GetLocalWigo().GetConfig().Notifications.HttpEnabled
 	mailEnabled := wigo.GetLocalWigo().GetConfig().Notifications.EmailEnabled
+	appriseEnabled := wigo.GetLocalWigo().GetConfig().Notifications.AppriseEnabled
 
 	for {
 		notification := <-chanCallbacks
@@ -303,6 +304,10 @@ func threadCallbacks(chanCallbacks chan wigo.INotification) {
 
 			if mailEnabled == 1 {
 				wigo.SendMail(notification.GetSummary(), notification.GetMessage())
+			}
+
+			if appriseEnabled != 0 {
+				wigo.SendApprise(notification.GetSummary(), notification.GetMessage())
 			}
 		}()
 	}

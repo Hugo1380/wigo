@@ -109,6 +109,10 @@ func NewConfig(configFile string) (this *Config) {
 	this.Notifications.EmailFromName = ""
 	this.Notifications.EmailRecipients = nil
 
+	this.Notifications.AppriseEnabled = 0
+	this.Notifications.ApprisePath = "/usr/local/bin/apprise"
+	this.Notifications.AppriseUrls = nil
+
 	// OpenTSDB
 	this.OpenTSDB.Enabled = false
 	this.OpenTSDB.Address = nil
@@ -239,6 +243,10 @@ type NotificationConfig struct {
 	EmailRecipients  []string
 	EmailFromName    string
 	EmailFromAddress string
+
+	AppriseEnabled int
+	ApprisePath    string
+	AppriseUrls    []string
 }
 
 type AdvancedRemoteWigoConfig struct {

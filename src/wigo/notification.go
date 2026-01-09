@@ -2,6 +2,7 @@ package wigo
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"net/mail"
 	"net/smtp"
 	"net/url"
+	"os/exec"
 	"time"
 )
 
@@ -256,4 +258,61 @@ func CallbackHttp(json string) (e error) {
 	resp.Body.Close()
 
 	return nil
+}
+
+func SendApprise(summary string, message string) {
+
+	log.Printf("We're gonna launch apprise notif...")
+
+	config := GetLocalWigo().GetConfig().Notifications
+
+	// Check if Apprise is enabled
+	if config.AppriseEnabled == 0 {
+		return
+	}
+
+	// Check if URLs are configured
+	if len(config.AppriseUrls) == 0 {
+		log.Printf("Apprise is enabled but no URLs are configured")
+		return
+	}
+
+	apprisePath := config.ApprisePath
+
+	// Ensure summary is not empty (Apprise requires it)
+	appriseSummary := summary
+	if appriseSummary == "" {
+		appriseSummary = message
+		if appriseSummary == "" {
+			appriseSummary = "Wigo notification"
+		}
+	}
+
+	// Send to each URL in a separate goroutine
+	for _, url := range config.AppriseUrls {
+		go func(appriseUrl string) {
+			// Create context with timeout (10 seconds)
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			// Create command: apprise -v -t "title" -b "body" url
+			cmd := exec.CommandContext(ctx, apprisePath, "-v", "-t", message, "-b", appriseSummary, appriseUrl)
+
+			// Execute command
+			output, err := cmd.CombinedOutput()
+			if err != nil {
+				log.Printf("Error sending apprise notification to %s : %s", appriseUrl, err)
+				if len(output) > 0 {
+					log.Printf("Apprise verbose output for %s : %s", appriseUrl, string(output))
+				}
+				return
+			}
+
+			// Log verbose output even on success for debugging
+			if len(output) > 0 {
+				log.Printf("Apprise verbose output for %s : %s", appriseUrl, string(output))
+			}
+			log.Printf(" - Sent to apprise url : %s", appriseUrl)
+		}(url)
+	}
 }
