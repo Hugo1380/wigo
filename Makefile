@@ -1,8 +1,8 @@
 SHELL = /bin/bash
 
-RELEASE_DIR="release/plik-$(RELEASE_VERSION)"
 BASE_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-RELEASE_VERSION=`cat $(BASE_DIR)/VERSION`
+RELEASE_VERSION:=$(shell cat $(BASE_DIR)/VERSION)
+RELEASE_DIR="release/plik-$(RELEASE_VERSION)"
 RELEASE_TARGETS=linux-amd64 linux-arm
 GOHOSTOS=$(shell go env GOHOSTOS)
 GOHOSTARCH=$(shell go env GOHOSTARCH)
@@ -46,8 +46,8 @@ releases:
 	    fi ; \
 		mkdir $$RELEASE_DIR; \
 		echo "Building Wigo release for $$target to $$RELEASE_DIR"; \
-		$(build) -tags "netgo osusergo" -ldflags "-s -w -X wigo.Version=$(RELEASE_VERSION)" -o $$RELEASE_DIR/wigo $(BASE_DIR)/src/wigo.go; \
-		$(build) -tags "netgo osusergo" -ldflags "-s -w -X wigo.Version=$(RELEASE_VERSION)" -o $$RELEASE_DIR/wigocli $(BASE_DIR)/src/wigocli.go; \
+		$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o $$RELEASE_DIR/wigo $(BASE_DIR)/src/wigo.go; \
+		$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o $$RELEASE_DIR/wigocli $(BASE_DIR)/src/wigocli.go; \
 		$(build) -o $$RELEASE_DIR/generate_cert $(BASE_DIR)/src/generate_cert.go; \
 	done
 
@@ -56,8 +56,8 @@ release:
 	@mkdir -p release
 	@cd release; \
 	export CGO_ENABLED=0; \
-	$(build) -tags "netgo osusergo" -ldflags "-s -w -X wigo.Version=$(RELEASE_VERSION)" -o current/wigo $(BASE_DIR)/src/wigo.go;	\
-	$(build) -tags "netgo osusergo" -ldflags "-s -w -X wigo.Version=$(RELEASE_VERSION)" -o current/wigocli $(BASE_DIR)/src/wigocli.go; \
+	$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o current/wigo $(BASE_DIR)/src/wigo.go;	\
+	$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o current/wigocli $(BASE_DIR)/src/wigocli.go; \
 	$(build) -o current/generate_cert $(BASE_DIR)/src/generate_cert.go
 
 debs:
