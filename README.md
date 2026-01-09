@@ -9,7 +9,7 @@ Main features
   - Proxy mode for hosts behind NAT/Gateways
   - Graphing probes metrics to OpenTSDB instances
 
-[Install Wigo Monitoring from Chrome Web Store](https://chrome.google.com/webstore/detail/wigo-monitoring/eaoeankffafdpnhgnamdlifgaknjdcog)
+[Install Wigo Monitoring browser extention for Chrome or Firefox](https://github.com/carsso/wigo-browser-extension)
 
 #### Screenshots:
 
@@ -25,23 +25,16 @@ Main features
 
 ### Installation
 
-> Warning : Breaking change since version 0.73.19 :
-> A change in the wigo push protocol can cause crashes if your wigo push server version is < 0.73.22.
-> You should update both wigo push clients and server to (at least) 0.73.22.
-
 ##### Debian :
-Deb packages are available for Debian 9, 10 and 11
+Deb packages are available for Debian >= 12
 ```sh
 apt-get install lsb-release
-wget -O- http://deb.carsso.com/deb.carsso.com.key | apt-key add -
-echo "deb http://deb.carsso.com $(lsb_release --codename --short) main" > /etc/apt/sources.list.d/deb.carsso.com.list
+sudo mkdir -p /etc/apt/keyrings
+wget -qO- http://deb.carsso.com/deb.carsso.com.key | gpg --dearmor | sudo tee /etc/apt/keyrings/deb.carsso.com.gpg > /dev/null
+echo "deb [signed-by=/etc/apt/keyrings/deb.carsso.com.gpg] http://deb.carsso.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/deb.carsso.com.list
 apt-get update
 apt-get install wigo
 ```
-_Debian 7 & 8 packages are not available anymore, it's time to upgrade :)_
-
-##### Centos :
-_Centos packages are not available anymore, but you can build them by yourself_
 
 ### Configuration / Setup
 
