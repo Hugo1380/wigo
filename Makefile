@@ -8,7 +8,7 @@ GOHOSTOS=$(shell go env GOHOSTOS)
 GOHOSTARCH=$(shell go env GOHOSTARCH)
 
 DEBROOT=debs
-RPMROOT=rpms
+DEBSRC=$(DEBROOT)/src
 
 ifdef REPOROOT
 else
@@ -62,39 +62,39 @@ release:
 
 debs:
 	@echo "Building Wigo Debian packages"
-	@mkdir -p $(DEBROOT)
-	@mkdir -p $(DEBROOT)/etc/wigo/conf.d
-	@mkdir -p $(DEBROOT)/etc/logrotate.d
-	@mkdir -p $(DEBROOT)/lib/systemd/system/
-	@mkdir -p $(DEBROOT)/usr/local/wigo/lib
-	@mkdir -p $(DEBROOT)/usr/local/wigo/bin
-	@mkdir -p $(DEBROOT)/usr/local/wigo/etc/conf.d
-	@mkdir -p $(DEBROOT)/usr/local/wigo/probes/examples
-	@mkdir -p $(DEBROOT)/usr/local/wigo/probes/60
-	@mkdir -p $(DEBROOT)/usr/local/wigo/probes/120
-	@mkdir -p $(DEBROOT)/usr/local/wigo/probes/300
-	@mkdir -p $(DEBROOT)/usr/local/bin
-	@mkdir -p $(DEBROOT)/var/lib/wigo
-	@cp -R build/deb/DEBIAN $(DEBROOT)
-	@cp -R lib/* $(DEBROOT)/usr/local/wigo/lib/
-	@cp probes/examples/* $(DEBROOT)/usr/local/wigo/probes/examples
-	@cp etc/wigo.conf $(DEBROOT)/usr/local/wigo/etc/wigo.conf.sample
-	@cp etc/conf.d/*.conf $(DEBROOT)/usr/local/wigo/etc/conf.d
-	@cp etc/wigo.systemd $(DEBROOT)/lib/systemd/system/wigo.service
-	@cp etc/wigo.logrotate $(DEBROOT)/etc/logrotate.d/wigo
-	@cp -R public $(DEBROOT)/usr/local/wigo
-	@sed -i "s/##VERSION##/Wigo v$(RELEASE_VERSION)/" $(DEBROOT)/usr/local/wigo/public/index.html
+	@mkdir -p $(DEBSRC)
+	@mkdir -p $(DEBSRC)/etc/wigo/conf.d
+	@mkdir -p $(DEBSRC)/etc/logrotate.d
+	@mkdir -p $(DEBSRC)/lib/systemd/system/
+	@mkdir -p $(DEBSRC)/usr/local/wigo/lib
+	@mkdir -p $(DEBSRC)/usr/local/wigo/bin
+	@mkdir -p $(DEBSRC)/usr/local/wigo/etc/conf.d
+	@mkdir -p $(DEBSRC)/usr/local/wigo/probes/examples
+	@mkdir -p $(DEBSRC)/usr/local/wigo/probes/60
+	@mkdir -p $(DEBSRC)/usr/local/wigo/probes/120
+	@mkdir -p $(DEBSRC)/usr/local/wigo/probes/300
+	@mkdir -p $(DEBSRC)/usr/local/bin
+	@mkdir -p $(DEBSRC)/var/lib/wigo
+	@cp -R build/deb/DEBIAN $(DEBSRC)
+	@cp -R lib/* $(DEBSRC)/usr/local/wigo/lib/
+	@cp probes/examples/* $(DEBSRC)/usr/local/wigo/probes/examples
+	@cp etc/wigo.conf $(DEBSRC)/usr/local/wigo/etc/wigo.conf.sample
+	@cp etc/conf.d/*.conf $(DEBSRC)/usr/local/wigo/etc/conf.d
+	@cp etc/wigo.systemd $(DEBSRC)/lib/systemd/system/wigo.service
+	@cp etc/wigo.logrotate $(DEBSRC)/etc/logrotate.d/wigo
+	@cp -R public $(DEBSRC)/usr/local/wigo
+	@sed -i "s/##VERSION##/Wigo v$(RELEASE_VERSION)/" $(DEBSRC)/usr/local/wigo/public/index.html
 	@for arch in amd64 armhf ; do \
-		echo "Building Wigo Debian package for $$arch to $(DEBROOT)"; \
-		cp -R build/deb/DEBIAN/control $(DEBROOT)/DEBIAN/control ; \
-		sed -i "s/^Version:.*/Version: $(RELEASE_VERSION)/" $(DEBROOT)/DEBIAN/control ; \
-		sed -i "s/^Architecture:.*/Architecture: $$arch/" $(DEBROOT)/DEBIAN/control ; \
+		echo "Building Wigo Debian package for $$arch to $(DEBSRC)"; \
+		cp -R build/deb/DEBIAN/control $(DEBSRC)/DEBIAN/control ; \
+		sed -i "s/^Version:.*/Version: $(RELEASE_VERSION)/" $(DEBSRC)/DEBIAN/control ; \
+		sed -i "s/^Architecture:.*/Architecture: $$arch/" $(DEBSRC)/DEBIAN/control ; \
 		if [ $$arch = 'armhf' ]; then  \
-			cp release/linux-arm/* $(DEBROOT)/usr/local/wigo/bin/ ; \
+			cp release/linux-arm/* $(DEBSRC)/usr/local/wigo/bin/ ; \
 		else \
-			cp release/linux-$$arch/* $(DEBROOT)/usr/local/wigo/bin/ ; \
+			cp release/linux-$$arch/* $(DEBSRC)/usr/local/wigo/bin/ ; \
 		fi ; \
-		fakeroot dpkg-deb -Z xz --build $(DEBROOT) $(DEBROOT)/wigo-$(RELEASE_VERSION)-$$arch.deb ; \
+		fakeroot dpkg-deb -Z xz --build $(DEBSRC) $(DEBROOT)/wigo-$(RELEASE_VERSION)-$$arch.deb ; \
 	done
 
 publish-debs:
