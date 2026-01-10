@@ -211,18 +211,44 @@ Options:
 		log.Fatalf("Fail to create table in sqlite database : %s\n", err)
 	}
 
+	// Configure SQLite busy timeout to handle concurrent access
+	_, err = LocalWigo.sqlLiteConn.Exec("PRAGMA busy_timeout = 5000")
+	if err != nil {
+		log.Fatalf("Fail to configure sqlite busy_timeout : %s\n", err)
+	}
+
 	// Launch cleaning routing
 	go func() {
 		for {
 			ts := time.Now().Unix() - 86400*30
 			sqlStmt := `DELETE FROM logs WHERE date < ?;`
 
-			LocalWigo.sqlLiteLock.Lock()
-			_, err = LocalWigo.sqlLiteConn.Exec(sqlStmt, ts)
-			if err != nil {
-				log.Fatalf("Fail to clean logs in database : %s\n", err)
+			maxRetries := 3
+			backoffDelays := []time.Duration{50 * time.Millisecond, 100 * time.Millisecond, 200 * time.Millisecond}
+
+			var err error
+			for attempt := 0; attempt < maxRetries; attempt++ {
+				LocalWigo.sqlLiteLock.Lock()
+				_, err = LocalWigo.sqlLiteConn.Exec(sqlStmt, ts)
+				LocalWigo.sqlLiteLock.Unlock()
+
+				if err == nil {
+					break
+				}
+
+				// Check if error is SQLITE_BUSY or database locked
+				errStr := err.Error()
+				isBusyError := strings.Contains(errStr, "SQLITE_BUSY")
+
+				if !isBusyError || attempt == maxRetries-1 {
+					// Not a busy error or last attempt, log and break
+					log.Printf("Fail to clean logs in database : %s\n", err)
+					break
+				}
+
+				// Wait before retry
+				time.Sleep(backoffDelays[attempt])
 			}
-			LocalWigo.sqlLiteLock.Unlock()
 
 			time.Sleep(time.Hour)
 		}

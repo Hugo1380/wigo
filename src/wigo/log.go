@@ -3,6 +3,7 @@ package wigo
 import (
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -44,15 +45,34 @@ func (this *Log) SetGroup(group string) {
 
 // Persist on disk
 func (this *Log) Persist() {
-	LocalWigo.sqlLiteLock.Lock()
-	defer LocalWigo.sqlLiteLock.Unlock()
-
 	sqlStmt := `INSERT INTO logs(date,level,grp,host,probe,message) VALUES(?,?,?,?,?,?);`
-	_, err := LocalWigo.sqlLiteConn.Exec(sqlStmt, this.Timestamp, this.Level, this.Group, this.Host, this.Probe, this.Message)
-	if err != nil {
-		log.Printf("Fail to insert log in sqlLite : %s", err)
+
+	maxRetries := 3
+	backoffDelays := []time.Duration{50 * time.Millisecond, 100 * time.Millisecond, 200 * time.Millisecond}
+
+	var err error
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		LocalWigo.sqlLiteLock.Lock()
+		_, err = LocalWigo.sqlLiteConn.Exec(sqlStmt, this.Timestamp, this.Level, this.Group, this.Host, this.Probe, this.Message)
+		LocalWigo.sqlLiteLock.Unlock()
+
+		if err == nil {
+			return
+		}
+
+		// Check if error is SQLITE_BUSY or database locked
+		errStr := err.Error()
+		isBusyError := strings.Contains(errStr, "SQLITE_BUSY")
+
+		if !isBusyError || attempt == maxRetries-1 {
+			// Not a busy error or last attempt, log and return
+			log.Printf("Fail to insert log in sqlLite : %s", err)
+			return
+		}
+
+		// Wait before retry
+		time.Sleep(backoffDelays[attempt])
 	}
-	return
 }
 
 // Log levels
