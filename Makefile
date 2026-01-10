@@ -46,9 +46,9 @@ releases:
 	    fi ; \
 		mkdir $$RELEASE_DIR; \
 		echo "Building Wigo release for $$target to $$RELEASE_DIR"; \
-		$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o $$RELEASE_DIR/wigo $(BASE_DIR)/src/wigo.go; \
-		$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o $$RELEASE_DIR/wigocli $(BASE_DIR)/src/wigocli.go; \
-		$(build) -o $$RELEASE_DIR/generate_cert $(BASE_DIR)/src/generate_cert.go; \
+		$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o $$RELEASE_DIR/wigo $(BASE_DIR)/src/cmd/wigo/main.go; \
+		$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o $$RELEASE_DIR/wigocli $(BASE_DIR)/src/cmd/wigocli/main.go; \
+		$(build) -o $$RELEASE_DIR/generate_cert $(BASE_DIR)/src/cmd/generate_cert/main.go; \
 	done
 
 release:
@@ -56,16 +56,16 @@ release:
 	@mkdir -p release
 	@cd release; \
 	export CGO_ENABLED=0; \
-	$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o current/wigo $(BASE_DIR)/src/wigo.go;	\
-	$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o current/wigocli $(BASE_DIR)/src/wigocli.go; \
-	$(build) -o current/generate_cert $(BASE_DIR)/src/generate_cert.go
+	$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o current/wigo $(BASE_DIR)/src/cmd/wigo/main.go;	\
+	$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o current/wigocli $(BASE_DIR)/src/cmd/wigocli/main.go; \
+	$(build) -o current/generate_cert $(BASE_DIR)/src/cmd/generate_cert/main.go
 
 debs:
 	@echo "Building Wigo Debian packages"
 	@mkdir -p $(DEBROOT)
 	@mkdir -p $(DEBROOT)/etc/wigo/conf.d
 	@mkdir -p $(DEBROOT)/etc/logrotate.d
-	@mkdir -p $(DEBROOT)/etc/init.d
+	@mkdir -p $(DEBROOT)/lib/systemd/system/
 	@mkdir -p $(DEBROOT)/usr/local/wigo/lib
 	@mkdir -p $(DEBROOT)/usr/local/wigo/bin
 	@mkdir -p $(DEBROOT)/usr/local/wigo/etc/conf.d
@@ -80,7 +80,7 @@ debs:
 	@cp probes/examples/* $(DEBROOT)/usr/local/wigo/probes/examples
 	@cp etc/wigo.conf $(DEBROOT)/usr/local/wigo/etc/wigo.conf.sample
 	@cp etc/conf.d/*.conf $(DEBROOT)/usr/local/wigo/etc/conf.d
-	@cp etc/wigo.init $(DEBROOT)/etc/init.d/wigo && chmod +x $(DEBROOT)/etc/init.d/wigo
+	@cp etc/wigo.systemd $(DEBROOT)/lib/systemd/system/wigo.service
 	@cp etc/wigo.logrotate $(DEBROOT)/etc/logrotate.d/wigo
 	@cp -R public $(DEBROOT)/usr/local/wigo
 	@sed -i "s/##VERSION##/Wigo v$(RELEASE_VERSION)/" $(DEBROOT)/usr/local/wigo/public/index.html
@@ -94,7 +94,7 @@ debs:
 		else \
 			cp release/linux-$$arch/* $(DEBROOT)/usr/local/wigo/bin/ ; \
 		fi ; \
-		dpkg-deb -Z xz --build $(DEBROOT) $(DEBROOT)/wigo-$(RELEASE_VERSION)-$$arch.deb ; \
+		fakeroot dpkg-deb -Z xz --build $(DEBROOT) $(DEBROOT)/wigo-$(RELEASE_VERSION)-$$arch.deb ; \
 	done
 
 publish-debs:

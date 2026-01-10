@@ -8,6 +8,6 @@
     delaycompress
     compress
     postrotate
-        /etc/init.d/wigo reload > /dev/null 2> /dev/null
+        systemctl restart wigo > /dev/null 2> /dev/null
     endscript
 }

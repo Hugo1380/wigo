@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -94,7 +93,7 @@ func threadWatch(ci chan wigo.Event) {
 
 	// Send
 	for _, dir := range probeDirectories {
-		ci <- wigo.Event{wigo.ADDDIRECTORY, wigo.GetLocalWigo().GetConfig().Global.ProbesDirectory + "/" + dir}
+		ci <- wigo.Event{Type: wigo.ADDDIRECTORY, Value: wigo.GetLocalWigo().GetConfig().Global.ProbesDirectory + "/" + dir}
 	}
 
 	// Init inotify
@@ -125,13 +124,13 @@ func threadWatch(ci chan wigo.Event) {
 				}
 
 				if fileInfo.IsDir() {
-					ci <- wigo.Event{wigo.ADDDIRECTORY, ev.Name}
+					ci <- wigo.Event{Type: wigo.ADDDIRECTORY, Value: ev.Name}
 				}
 
 			} else if ev.IsDelete() {
-				ci <- wigo.Event{wigo.REMOVEDIRECTORY, ev.Name}
+				ci <- wigo.Event{Type: wigo.REMOVEDIRECTORY, Value: ev.Name}
 			} else if ev.IsRename() {
-				ci <- wigo.Event{wigo.REMOVEDIRECTORY, ev.Name}
+				ci <- wigo.Event{Type: wigo.REMOVEDIRECTORY, Value: ev.Name}
 			}
 		}
 	}
@@ -367,7 +366,7 @@ func execProbe(probePath string, timeOut int) {
 	// Wait channel
 	done := make(chan error)
 	go func() {
-		commandOutput, err = ioutil.ReadAll(combinedOutput)
+		commandOutput, err = io.ReadAll(combinedOutput)
 		if err != nil {
 			probeResult = wigo.NewProbeResult(probeName, 500, -1, fmt.Sprintf("error reading pipe: %s", err), "")
 			wigo.GetLocalWigo().GetLocalHost().AddOrUpdateProbe(probeResult)
@@ -515,7 +514,7 @@ func launchRemoteHostCheckRoutine(Hostname wigo.AdvancedRemoteWigoConfig) {
 			if err != nil {
 				time.Sleep(time.Second)
 			} else {
-				body, _ = ioutil.ReadAll(resp.Body)
+				body, _ = io.ReadAll(resp.Body)
 				resp.Body.Close()
 				break
 			}

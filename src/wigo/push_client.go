@@ -12,7 +12,6 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"io"
-	"io/ioutil"
 	"os"
 	"time"
 )
@@ -48,7 +47,7 @@ func NewPushClient(config *PushClientConfig) (this *PushClient, err error) {
 
 		// Try to load the server certificate
 		if _, err := os.Stat(this.config.SslCert); err == nil {
-			if certBytes, err := ioutil.ReadFile(this.config.SslCert); err == nil {
+			if certBytes, err := os.ReadFile(this.config.SslCert); err == nil {
 				if block, _ := pem.Decode(certBytes); block != nil {
 					if cert, err := x509.ParseCertificate(block.Bytes); err == nil {
 						this.tlsConfig.RootCAs = x509.NewCertPool()
@@ -126,7 +125,7 @@ func NewPushClient(config *PushClientConfig) (this *PushClient, err error) {
 	}
 
 	if _, err = os.Stat(this.config.UuidSig); err == nil {
-		if this.uuidSignature, err = ioutil.ReadFile(this.config.UuidSig); err != nil {
+		if this.uuidSignature, err = os.ReadFile(this.config.UuidSig); err != nil {
 			log.Fatalf("Push client : while registering on %s, unable to read uuid signature from %s", address, this.config.UuidSig)
 		}
 	} else {

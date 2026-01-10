@@ -1,0 +1,15 @@
+[Unit]
+Description=Wigo - What is Going On
+After=remote-fs.target syslog.target
+Wants=remote-fs.target
+
+[Service]
+ExecStart=/usr/local/wigo/bin/wigo
+WorkingDirectory=/usr/local/wigo
+StandardError=file:/var/log/wigo.err
+Environment="PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/wigo/bin"
+EnvironmentFile=-/etc/default/wigo
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

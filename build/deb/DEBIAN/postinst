@@ -9,14 +9,10 @@ EXAMPLEPROBES300=( smart check_ntp packages-apt )
 # Fixing logrotate permissions
 chown root:root /etc/logrotate.d/wigo
 
-# <TEMPORARY>
-rm /etc/wigo/conf.d/smart.conf
-# </TEMPORARY>
-
 # Copy config file if not present on system
 if [ ! -e /etc/wigo/wigo.conf ] ; then
     cp $WIGOPATH/etc/wigo.conf.sample /etc/wigo/wigo.conf
-    update-rc.d wigo defaults
+    echo "Config file /etc/wigo/wigo.conf created"
 else
     echo "Config file /etc/wigo.conf already exists. Not overriding it.."
 fi
@@ -29,12 +25,6 @@ for configFile in $CONFIGFILES; do
         cp $WIGOPATH/etc/conf.d/$configFile /etc/wigo/conf.d/$configFile
     fi
 done
-
-# Retro compatibility
-if [ -e /etc/wigo.conf ] ; then
-    echo "Old config file detected, moving it to /etc/wigo/wigo.conf.."
-    mv /etc/wigo.conf /etc/wigo/wigo.conf
-fi
 
 # Enabling default probes on 60 directory
 echo "Enabling default probes.."
@@ -59,6 +49,13 @@ for probeName in ${EXAMPLEPROBES300[@]}; do
     fi
 done
 
+if [ -f /etc/init.d/wigo ] ; then
+    /etc/init.d/wigo stop
+    update-rc.d -f wigo remove
+    rm -f /etc/init.d/wigo
+    echo "Old init script removed"
+fi
 
+echo "Starting Wigo service"
 # Start it
-/etc/init.d/wigo restart
+systemctl daemon-reload && systemctl enable wigo && systemctl restart wigo

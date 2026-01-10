@@ -10,7 +10,6 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"io/ioutil"
 	"os"
 	"regexp"
 
@@ -47,7 +46,7 @@ func NewAuthority(config *PushServerConfig) (this *Authority) {
 
 	// Load CA certificate
 	var err error
-	if this.cert, err = ioutil.ReadFile(this.config.SslCert); err == nil {
+	if this.cert, err = os.ReadFile(this.config.SslCert); err == nil {
 		if block, _ := pem.Decode(this.cert); block != nil {
 			if this.certificate, err = x509.ParseCertificate(block.Bytes); err != nil {
 				log.Fatal("Authority : Unable to parse x509 certificate")
@@ -60,7 +59,7 @@ func NewAuthority(config *PushServerConfig) (this *Authority) {
 	}
 
 	// Load CA private key
-	if this.key, err = ioutil.ReadFile(this.config.SslKey); err == nil {
+	if this.key, err = os.ReadFile(this.config.SslKey); err == nil {
 		if block, _ := pem.Decode(this.key); block != nil {
 			if this.privateKey, err = x509.ParsePKCS1PrivateKey(block.Bytes); err != nil {
 				err = errors.New("Authority : Unable to read decode x509 private key")

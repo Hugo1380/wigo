@@ -4,7 +4,7 @@ import (
 	"container/list"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 )
 
 // List probes in directory
@@ -13,7 +13,7 @@ func ListProbesInDirectory(directory string) (probesList *list.List, error error
 	probesList = new(list.List)
 
 	// List checks directory
-	files, err := ioutil.ReadDir(directory)
+	files, err := os.ReadDir(directory)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func ListProbesInDirectory(directory string) (probesList *list.List, error error
 func ListProbesDirectories() ([]string, error) {
 
 	// List checks directory
-	files, err := ioutil.ReadDir(GetLocalWigo().GetConfig().Global.ProbesDirectory)
+	files, err := os.ReadDir(GetLocalWigo().GetConfig().Global.ProbesDirectory)
 	if err != nil {
 		return nil, err
 	}

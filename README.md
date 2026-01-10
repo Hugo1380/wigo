@@ -108,16 +108,9 @@ make clean releases
 ```
 
 ##### Build debian packages
-You will need `reprepro`
+You will need `dpkg-deb`
 ```sh
 make debs
-```
-
-##### Build rpm packages
-You will need rpm-building tools
-```sh
-cd build/rpm/
-./makePackege.sh
 ```
 
 ### Usage
@@ -130,7 +123,7 @@ cd build/rpm/
 ##### Wigo CLI
 
 ```sh
-# wigocli
+# /usr/local/wigo/bin/wigocli
 Wigo v0.51.5 running on backbone.root.gg 
 Local Status    : 100
 Global Status   : 250
@@ -153,7 +146,7 @@ Remote Wigos :
 Probes are binaries, written in any language you want, that output a json string with at least Status param :
 ```sh
 
-$ ./hardware_load_average
+$ /usr/local/wigo/probes/examples/hardware_load_average
 {
    "Detail" : "",
    "Version" : "0.11",

@@ -12,7 +12,6 @@ import (
 
 	"container/list"
 	"errors"
-	"io/ioutil"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -68,7 +67,7 @@ func NewWigo(config *Config) (this *Wigo, err error) {
 
 	// Load uuid
 	if _, err = os.Stat(this.config.Global.UuidFile); err == nil {
-		if uuidBytes, err := ioutil.ReadFile(this.config.Global.UuidFile); err == nil {
+		if uuidBytes, err := os.ReadFile(this.config.Global.UuidFile); err == nil {
 			this.Uuid = string(uuidBytes)
 		} else {
 			log.Fatalf("Unable to read uuid file : %s", err)
@@ -139,7 +138,7 @@ func InitWigo() (err error) {
 	filepath.Walk("/tmp", removeFunc)
 
 	// Args
-	usage := `wigo
+	usage := fmt.Sprintf(`wigo %s
 
 Usage:
 	wigo
@@ -149,12 +148,12 @@ Options:
 	-h 	--help
 	-v 	--version
 	-c, --config CONFIG		Specify config file
-`
+`, Version)
 
 	// Parse args
 	configFile := "/etc/wigo/wigo.conf"
 
-	arguments, _ := docopt.Parse(usage, nil, true, Version, false)
+	arguments, _ := docopt.ParseArgs(usage, os.Args[1:], Version)
 
 	for key, value := range arguments {
 		if _, ok := value.(string); ok {
