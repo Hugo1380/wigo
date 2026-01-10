@@ -416,8 +416,7 @@ func execProbe(probePath string, timeOut int) {
 			// Create error probe
 			probeResult = wigo.NewProbeResult(probeName, 500, exitCode, fmt.Sprintf("error: %s", err), string(commandOutput))
 			wigo.GetLocalWigo().GetLocalHost().AddOrUpdateProbe(probeResult)
-
-			log.Printf(" - Probe %s in directory %s failed to exec : %s\n", probeResult.Name, probeDirectory, err)
+			log.Printf(" - Probe %s in directory %s failed to exec : %s - %s\n", probeResult.Name, probeDirectory, err, probeResult.Detail)
 			return
 
 		} else {
@@ -569,7 +568,7 @@ func threadHttp(config *wigo.HttpConfig) {
 		m.Use(auth.Basic(config.Login, config.Password))
 	}
 
-	// Serve static files
+	// Serve static files from dist directory (built frontend)
 	m.Use(martini.Static("public"))
 
 	// Handle errors // TODO is this even working ?

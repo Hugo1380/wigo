@@ -88,15 +88,20 @@ The directory name is the interval of check in seconds
 ### Building from sources
 
 ##### Environment
-To build from sources, you need `golang` and `gcc` installed.
-The `$GOPATH` environment variable should also be set on your system.
+To build from sources, you need:
+- `golang` and `gcc` installed
+- `node.js` and `npm` for the frontend
+- The `$GOPATH` environment variable should also be set on your system
 
 ##### Dependencies
+
+Install all dependencies:
 ```sh
 make deps
 ```
 
-##### Building for your system
+##### Building
+
 ```sh
 make clean release
 ```
@@ -112,6 +117,20 @@ You will need `dpkg-deb`
 ```sh
 make debs
 ```
+
+##### Development mode
+
+To run Wigo in development mode with hot-reload for both backend and frontend:
+
+```sh
+make run-dev
+```
+
+The web interface will be available at `http://localhost:4400/` (or the port configured in `etc/wigo-dev.conf`).
+
+To stop the development server, press `Ctrl+C` - this will gracefully stop both the Go server and the frontend watcher.
+
+**Note:** The development mode requires `sudo` privileges to run the Wigo server. The development files are stored in the `dev/` directory.
 
 ### Usage
 

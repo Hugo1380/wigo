@@ -1,0 +1,116 @@
+:root {
+  /* Couleurs de statut */
+  --color-ok: #28a745;
+  --color-info: #17a2b8;
+  --color-warning: #ffc107;
+  --color-critical: #dc3545;
+  --color-error: #343a40;
+  
+  /* Couleurs de statut (versions claires pour backgrounds) */
+  --color-ok-light: #d4edda;
+  --color-info-light: #d1ecf1;
+  --color-warning-light: #fff3cd;
+  --color-critical-light: #f8d7da;
+  --color-error-light: #e2e3e5;
+  
+  /* Sidebar */
+  --sidebar-bg: #1e3a5f;
+  --sidebar-bg-hover: #2a4d75;
+  --sidebar-text: #ffffff;
+  --sidebar-width: 18rem;
+  --sidebar-width-collapsed: 4.5rem;
+  
+  /* TopBar */
+  --topbar-height: 56px;
+  --topbar-bg: #ffffff;
+  --topbar-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+  
+  /* Espacements */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+  
+  /* Bordures */
+  --border-radius: 0.35rem;
+  --border-radius-sm: 0.25rem;
+  --border-radius-lg: 0.5rem;
+  --border-width: 1px;
+  
+  /* Ombres */
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --shadow-md: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+  --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+  
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 300ms ease-in-out;
+  --transition-slow: 500ms ease-in-out;
+  
+  /* Typographie */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-size-base: 1rem;
+  --font-size-sm: 0.875rem;
+  --font-size-lg: 1.125rem;
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+  
+  /* Z-index */
+  --z-sidebar: 1000;
+  --z-topbar: 1030;
+  --z-dropdown: 1050;
+  --z-modal: 1060;
+}
+
+/* Classes utilitaires pour les couleurs de statut */
+.bg-status-ok {
+  background-color: var(--color-ok) !important;
+}
+
+.bg-status-info {
+  background-color: var(--color-info) !important;
+}
+
+.bg-status-warning {
+  background-color: var(--color-warning) !important;
+}
+
+.bg-status-critical {
+  background-color: var(--color-critical) !important;
+}
+
+.bg-status-error {
+  background-color: var(--color-error) !important;
+}
+
+.text-status-ok {
+  color: var(--color-ok) !important;
+}
+
+.text-status-info {
+  color: var(--color-info) !important;
+}
+
+.text-status-warning {
+  color: var(--color-warning) !important;
+}
+
+.text-status-critical {
+  color: var(--color-critical) !important;
+}
+
+.text-status-error {
+  color: var(--color-error) !important;
+}
+
+/* Gradient pour sidebar */
+.bg-gradient-primary {
+  background: linear-gradient(180deg, var(--sidebar-bg) 10%, #2a4d75 100%) !important;
+}
+
+.sidebar-dark {
+  background-color: var(--sidebar-bg) !important;
+  color: var(--sidebar-text) !important;
+}

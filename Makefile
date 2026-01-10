@@ -17,7 +17,7 @@ endif
 
 build = go build
 
-.PHONY: release race
+.PHONY: release race build-dev run-dev
 race:
 	@echo "Building with race detector (current OS)"
 	@mkdir -p release
@@ -27,9 +27,19 @@ race:
 	GORACE="halt_on_error=1" go build -race -o current/wigocli $(BASE_DIR)/src/wigocli.go; \
 	go build -o current/generate_cert $(BASE_DIR)/src/generate_cert.go
 
-all: clean release
+all: clean lint release releases
 
-releases:
+deps:
+	@echo "Installing dependencies"
+	go mod download -x
+	@echo "Installing frontend dependencies"
+	cd src/public && npm install
+
+build-frontend: deps
+	@echo "Building frontend"
+	cd src/public && npm run build
+
+releases: build-frontend
 	@echo "Building Wigo releases"
 	@mkdir -p release
 	@cd release && for target in $(RELEASE_TARGETS) ; do \
@@ -51,7 +61,7 @@ releases:
 		$(build) -o $$RELEASE_DIR/generate_cert $(BASE_DIR)/src/cmd/generate_cert/main.go; \
 	done
 
-release:
+release: build-frontend
 	@echo "Building Wigo release for current OS"
 	@mkdir -p release
 	@cd release; \
@@ -60,7 +70,7 @@ release:
 	$(build) -tags "netgo osusergo" -ldflags "-s -w -X github.com/root-gg/wigo/src/wigo.Version=$(RELEASE_VERSION)" -o current/wigocli $(BASE_DIR)/src/cmd/wigocli/main.go; \
 	$(build) -o current/generate_cert $(BASE_DIR)/src/cmd/generate_cert/main.go
 
-debs:
+debs: releases
 	@echo "Building Wigo Debian packages"
 	@mkdir -p $(DEBSRC)
 	@mkdir -p $(DEBSRC)/etc/wigo/conf.d
@@ -106,7 +116,7 @@ publish-debs:
 		done \
 	done
 
-lint:
+lint: fmt
 	@FAIL=0 ;echo -n " - go fmt :" ; OUT=`gofmt -l . | grep -v ^vendor` ; \
 	if [[ -z "$$OUT" ]]; then echo " OK" ; else echo " FAIL"; echo "$$OUT"; FAIL=1 ; fi ;\
 	echo -n " - go vet :" ; OUT=`go vet ./...` ; \
@@ -120,7 +130,44 @@ clean:
 	@echo "Cleaning all files"
 	@rm -rf release
 	@rm -rf $(DEBROOT)
+	@rm -rf dev
 
-deps:
-	@echo "Installing dependencies"
-	go mod download -x
+build-dev: deps
+	@echo "Building Wigo for development"
+	@mkdir -p release/current
+	@go build -o release/current/wigo $(BASE_DIR)/src/cmd/wigo/main.go
+	@go build -o release/current/wigocli $(BASE_DIR)/src/cmd/wigocli/main.go
+	@go build -o release/current/generate_cert $(BASE_DIR)/src/cmd/generate_cert/main.go
+
+
+run-dev: build-dev
+	@echo "Starting Wigo development server"
+	@trap 'kill $$WIGO_PID $$TAIL_PID 2>/dev/null; wait $$WIGO_PID $$TAIL_PID 2>/dev/null; exit' INT TERM; \
+	mkdir -p $(BASE_DIR)/dev; \
+	mkdir -p $(BASE_DIR)/dev/probes/; \
+	if [ ! -d $(BASE_DIR)/dev/probes/60 ]; then mkdir -p $(BASE_DIR)/dev/probes/60; fi; \
+	for probe in hardware_load_average hardware_disks hardware_memory ifstat supervisord needrestart check_mdadm check_process haproxy lm-sensors iostat check_uptime smart check_ntp packages-apt; do \
+		if [ ! -e $(BASE_DIR)/dev/probes/60/$$probe ]; then \
+			ln -s $(BASE_DIR)/probes/examples/$$probe $(BASE_DIR)/dev/probes/60/$$probe; \
+		fi; \
+	done; \
+	if [ ! -d $(BASE_DIR)/dev/probes/300 ]; then mkdir -p $(BASE_DIR)/dev/probes/300; fi; \
+	for probe in smart check_ntp packages-apt; do \
+		if [ ! -e $(BASE_DIR)/dev/probes/300/$$probe ]; then \
+			ln -s $(BASE_DIR)/probes/examples/$$probe $(BASE_DIR)/dev/probes/300/$$probe; \
+		fi; \
+	done; \
+	ln -s $(BASE_DIR)/lib $(BASE_DIR)/dev/lib; \
+	if [ ! -e $(BASE_DIR)/dev/wigo.crt ]; then \
+		(cd $(BASE_DIR)/dev && $(BASE_DIR)/release/current/generate_cert -ca=true -duration=87600h0m0s -host "127.0.0.1" --rsa-bits=4096;) \
+	fi; \
+	sudo $(BASE_DIR)/release/current/wigo --config $(BASE_DIR)/etc/wigo-dev.conf & \
+	WIGO_PID=$$!; \
+	sleep 1; \
+	tail -f $(BASE_DIR)/dev/wigo.log 2>/dev/null & \
+	TAIL_PID=$$!; \
+	cd $(BASE_DIR)/src/public && npm run watch; \
+	EXIT_CODE=$$?; \
+	kill $$WIGO_PID $$TAIL_PID 2>/dev/null; \
+	wait $$WIGO_PID $$TAIL_PID 2>/dev/null; \
+	exit $$EXIT_CODE
