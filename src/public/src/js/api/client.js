@@ -1,13 +1,13 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = "/api";
 
 // Instance Axios configurée
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 /**
@@ -19,7 +19,7 @@ export const api = {
    * @returns {Promise<Array<string>>}
    */
   async getGroups() {
-    const response = await apiClient.get('/groups');
+    const response = await apiClient.get("/groups");
     return response.data;
   },
 
@@ -38,7 +38,7 @@ export const api = {
    * @returns {Promise<Array>}
    */
   async getHosts() {
-    const response = await apiClient.get('/hosts');
+    const response = await apiClient.get("/hosts");
     return response.data;
   },
 
@@ -79,7 +79,9 @@ export const api = {
    * @returns {Promise<Object>}
    */
   async getProbe(hostname, probeName) {
-    const response = await apiClient.get(`/hosts/${hostname}/probes/${probeName}`);
+    const response = await apiClient.get(
+      `/hosts/${hostname}/probes/${probeName}`,
+    );
     return response.data;
   },
 
@@ -90,7 +92,9 @@ export const api = {
    * @returns {Promise<number>}
    */
   async getProbeStatus(hostname, probeName) {
-    const response = await apiClient.get(`/hosts/${hostname}/probes/${probeName}/status`);
+    const response = await apiClient.get(
+      `/hosts/${hostname}/probes/${probeName}/status`,
+    );
     return parseInt(response.data);
   },
 
@@ -100,7 +104,7 @@ export const api = {
    * @returns {Promise<Array>}
    */
   async getLogs(params = {}) {
-    const response = await apiClient.get('/logs', { params });
+    const response = await apiClient.get("/logs", { params });
     return response.data;
   },
 
@@ -111,7 +115,9 @@ export const api = {
    * @returns {Promise<Array>}
    */
   async getGroupLogs(groupName, params = {}) {
-    const response = await apiClient.get(`/groups/${groupName}/logs`, { params });
+    const response = await apiClient.get(`/groups/${groupName}/logs`, {
+      params,
+    });
     return response.data;
   },
 
@@ -134,7 +140,10 @@ export const api = {
    * @returns {Promise<Array>}
    */
   async getProbeLogs(hostname, probeName, params = {}) {
-    const response = await apiClient.get(`/hosts/${hostname}/probes/${probeName}/logs`, { params });
+    const response = await apiClient.get(
+      `/hosts/${hostname}/probes/${probeName}/logs`,
+      { params },
+    );
     return response.data;
   },
 
@@ -145,7 +154,9 @@ export const api = {
    * @returns {Promise<Array>}
    */
   async getProbeLogsByName(probeName, params = {}) {
-    const response = await apiClient.get(`/probes/${probeName}/logs`, { params });
+    const response = await apiClient.get(`/probes/${probeName}/logs`, {
+      params,
+    });
     return response.data;
   },
 
@@ -154,7 +165,7 @@ export const api = {
    * @returns {Promise<Object>}
    */
   async getLogIndexes() {
-    const response = await apiClient.get('/logs/indexes');
+    const response = await apiClient.get("/logs/indexes");
     return response.data;
   },
 
@@ -163,7 +174,7 @@ export const api = {
    * @returns {Promise<number>}
    */
   async getStatus() {
-    const response = await apiClient.get('/status');
+    const response = await apiClient.get("/status");
     return parseInt(response.data);
   },
 
@@ -172,7 +183,7 @@ export const api = {
    * @returns {Promise<Object>}
    */
   async getAll() {
-    const response = await apiClient.get('/');
+    const response = await apiClient.get("/");
     return response.data;
   },
 
@@ -181,7 +192,7 @@ export const api = {
    * @returns {Promise<Object>}
    */
   async getAuthorityHosts() {
-    const response = await apiClient.get('/authority/hosts');
+    const response = await apiClient.get("/authority/hosts");
     return response.data;
   },
 
@@ -201,7 +212,7 @@ export const api = {
    */
   async revokeHost(uuid) {
     await apiClient.post(`/authority/hosts/${uuid}/revoke`);
-  }
+  },
 };
 
 export default api;

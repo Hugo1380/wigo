@@ -1,22 +1,19 @@
 <template>
-  <AppLayout :counts="counts" :current-interval="interval" @refresh-settings="handleRefreshSettings">
+  <AppLayout
+    :counts="counts"
+    :current-interval="interval"
+    @refresh-settings="handleRefreshSettings"
+  >
     <template #sidebar>
-      <div class="sidebar-heading pb-2">
+      <div class="pb-2">
         Group {{ groupName }}
         <StatusBadge v-if="group" :level="group.Level" size="sm" class="ms-1">
           {{ group.Status }}
         </StatusBadge>
       </div>
 
-      <li 
-        v-for="host in sortedHosts" 
-        :key="host.Name"
-        class="nav-item"
-      >
-        <a 
-          class="nav-link py-1 cursor-pointer" 
-          @click="gotoAnchor(host.Name)"
-        >
+      <li v-for="host in sortedHosts" :key="host.Name" class="nav-item">
+        <a class="nav-link py-1 cursor-pointer" @click="gotoAnchor(host.Name)">
           <i class="fas fa-fw fa-server"></i>
           <span>
             {{ host.Name }}
@@ -37,15 +34,15 @@
         </a>
       </li>
     </template>
-    
-    <div 
-      v-for="host in sortedHosts" 
-      :key="host.Name" 
-      :id="host.Name" 
+
+    <div
+      v-for="host in sortedHosts"
+      :key="host.Name"
+      :id="host.Name"
       class="jump"
     >
-      <StatusCard 
-        :level="host.Level" 
+      <StatusCard
+        :level="host.Level"
         :clickable="true"
         @click="gotoHost(host.Name)"
       >
@@ -53,8 +50,8 @@
           {{ host.Name }}
         </template>
         <template #badges>
-          <StatusBadge 
-            v-for="(count, countName) in host.counts" 
+          <StatusBadge
+            v-for="(count, countName) in host.counts"
             :key="countName"
             :level="countName"
             size="sm"
@@ -73,8 +70,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr 
-                  v-for="probe in sortedProbes(host.Probes)" 
+                <tr
+                  v-for="probe in sortedProbes(host.Probes)"
                   :key="probe.Name"
                   :class="getStatusRowClass(probe.Status)"
                   class="cursor-pointer"
@@ -93,26 +90,26 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import api from '../api/client.js';
-import { getLevel, getStatusRowClass } from '../utils/status.js';
-import AppLayout from '../components/layout/AppLayout.vue';
-import StatusCard from '../components/StatusCard.vue';
-import StatusBadge from '../components/StatusBadge.vue';
-import { useRefresh } from '../composables/useRefresh.js';
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import api from "../api/client.js";
+import { getLevel, getStatusRowClass } from "../utils/status.js";
+import AppLayout from "../components/layout/AppLayout.vue";
+import StatusCard from "../components/StatusCard.vue";
+import StatusBadge from "../components/StatusBadge.vue";
+import { useRefresh } from "../composables/useRefresh.js";
 
 const route = useRoute();
 const router = useRouter();
-const groupName = ref(route.query.name || '');
+const groupName = ref(route.query.name || "");
 const group = ref(null);
 const hosts = ref([]);
 const counts = ref({
-  "OK": 0,
-  "INFO": 0,
-  "WARNING": 0,
-  "CRITICAL": 0,
-  "ERROR": 0
+  OK: 0,
+  INFO: 0,
+  WARNING: 0,
+  CRITICAL: 0,
+  ERROR: 0,
 });
 
 const sortedHosts = computed(() => {
@@ -130,28 +127,32 @@ function sortedProbes(probes) {
 }
 
 function gotoHost(hostName) {
-  router.push({ path: '/host', query: { name: hostName } });
+  router.push({ path: "/host", query: { name: hostName } });
 }
 
 function gotoProbe(hostName, probeName) {
-  router.push({ path: '/host', query: { name: hostName }, hash: `#${probeName}` });
+  router.push({
+    path: "/host",
+    query: { name: hostName },
+    hash: `#${probeName}`,
+  });
 }
 
 function gotoAnchor(anchor) {
   const element = document.getElementById(anchor);
   if (element) {
-    element.scrollIntoView({ behavior: 'smooth' });
+    element.scrollIntoView({ behavior: "smooth" });
   }
 }
 
 async function load() {
   hosts.value = [];
   counts.value = {
-    "OK": 0,
-    "INFO": 0,
-    "WARNING": 0,
-    "CRITICAL": 0,
-    "ERROR": 0
+    OK: 0,
+    INFO: 0,
+    WARNING: 0,
+    CRITICAL: 0,
+    ERROR: 0,
   };
 
   if (!groupName.value) return;
@@ -163,11 +164,11 @@ async function load() {
 
     for (const host of groupData.Hosts) {
       host.counts = {
-        "OK": 0,
-        "INFO": 0,
-        "WARNING": 0,
-        "CRITICAL": 0,
-        "ERROR": 0
+        OK: 0,
+        INFO: 0,
+        WARNING: 0,
+        CRITICAL: 0,
+        ERROR: 0,
       };
       host.Level = getLevel(host.Status);
 
@@ -180,18 +181,21 @@ async function load() {
       hosts.value.push(host);
     }
   } catch (error) {
-    console.error('Error loading group:', error);
+    console.error("Error loading group:", error);
   }
 }
 
-const { startRefresh, stopRefresh, setRefreshInterval, interval } = useRefresh(load, 60);
+const { startRefresh, stopRefresh, setRefreshInterval, interval } = useRefresh(
+  load,
+  60,
+);
 
 function handleRefreshSettings(seconds) {
   setRefreshInterval(seconds);
 }
 
 onMounted(() => {
-  groupName.value = route.query.name || '';
+  groupName.value = route.query.name || "";
   load();
   startRefresh();
 });

@@ -1,13 +1,18 @@
 <template>
-  <AppLayout :current-interval="interval" @refresh-settings="handleRefreshSettings">
+  <AppLayout
+    :current-interval="interval"
+    @refresh-settings="handleRefreshSettings"
+  >
     <template #sidebar>
-      <div class="sidebar-heading pb-2">
-        Authority management
-      </div>
+      <div class="pb-2">Authority management</div>
 
       <li class="nav-item">
         <a class="nav-link py-1 text-center">
-          <button type="button" class="btn btn-success btn-sm w-100" @click="allowAll">
+          <button
+            type="button"
+            class="btn btn-success btn-sm w-100"
+            @click="allowAll"
+          >
             <i class="fas fa-check-circle me-1"></i>
             Allow all waiting clients
           </button>
@@ -15,14 +20,18 @@
       </li>
       <li class="nav-item">
         <a class="nav-link py-1 text-center">
-          <button type="button" class="btn btn-danger btn-sm w-100" @click="revokeAll">
+          <button
+            type="button"
+            class="btn btn-danger btn-sm w-100"
+            @click="revokeAll"
+          >
             <i class="fas fa-times-circle me-1"></i>
             Revoke all clients
           </button>
         </a>
       </li>
     </template>
-    
+
     <div v-if="waiting.length" class="card my-4">
       <div class="card-header text-white bg-warning">
         <span class="fw-bold">
@@ -43,20 +52,22 @@
             <tbody>
               <tr v-for="host in sortedWaiting" :key="host.uuid">
                 <td>{{ host.hostname }}</td>
-                <td><code class="small">{{ host.uuid }}</code></td>
+                <td>
+                  <code class="small">{{ host.uuid }}</code>
+                </td>
                 <td>
                   <div class="btn-group">
-                    <button 
-                      type="button" 
-                      class="btn btn-danger btn-sm" 
+                    <button
+                      type="button"
+                      class="btn btn-danger btn-sm"
                       @click="revoke(host)"
                       title="Revoke"
                     >
                       <i class="fas fa-times"></i>
                     </button>
-                    <button 
-                      type="button" 
-                      class="btn btn-success btn-sm" 
+                    <button
+                      type="button"
+                      class="btn btn-success btn-sm"
                       @click="allow(host)"
                       title="Allow"
                     >
@@ -70,7 +81,7 @@
         </div>
       </div>
     </div>
-    
+
     <div v-if="allowed.length" class="card my-4">
       <div class="card-header text-white bg-success">
         <span class="fw-bold">
@@ -89,18 +100,20 @@
               </tr>
             </thead>
             <tbody>
-              <tr 
-                v-for="host in sortedAllowed" 
+              <tr
+                v-for="host in sortedAllowed"
                 :key="host.uuid"
                 class="cursor-pointer"
                 @click="gotoHost(host.hostname)"
               >
                 <td>{{ host.hostname }}</td>
-                <td><code class="small">{{ host.uuid }}</code></td>
                 <td>
-                  <button 
-                    type="button" 
-                    class="btn btn-danger btn-sm" 
+                  <code class="small">{{ host.uuid }}</code>
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
                     @click.stop="revoke(host)"
                     title="Revoke"
                   >
@@ -113,7 +126,7 @@
         </div>
       </div>
     </div>
-    
+
     <div v-if="!waiting.length && !allowed.length" class="card my-4">
       <div class="card-body text-center text-muted py-5">
         <i class="fas fa-inbox fa-3x mb-3"></i>
@@ -124,48 +137,52 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import api from '../api/client.js';
-import AppLayout from '../components/layout/AppLayout.vue';
-import { useRefresh } from '../composables/useRefresh.js';
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import api from "../api/client.js";
+import AppLayout from "../components/layout/AppLayout.vue";
+import { useRefresh } from "../composables/useRefresh.js";
 
 const router = useRouter();
 const waiting = ref([]);
 const allowed = ref([]);
 
 const sortedWaiting = computed(() => {
-  return [...waiting.value].sort((a, b) => a.hostname.localeCompare(b.hostname));
+  return [...waiting.value].sort((a, b) =>
+    a.hostname.localeCompare(b.hostname),
+  );
 });
 
 const sortedAllowed = computed(() => {
-  return [...allowed.value].sort((a, b) => a.hostname.localeCompare(b.hostname));
+  return [...allowed.value].sort((a, b) =>
+    a.hostname.localeCompare(b.hostname),
+  );
 });
 
 function gotoHost(hostname) {
-  router.push({ path: '/host', query: { name: hostname } });
+  router.push({ path: "/host", query: { name: hostname } });
 }
 
 async function load() {
   try {
     const hosts = await api.getAuthorityHosts();
-    
+
     waiting.value = [];
     allowed.value = [];
-    
+
     if (hosts.waiting) {
       for (const [uuid, hostname] of Object.entries(hosts.waiting)) {
         waiting.value.push({ uuid, hostname });
       }
     }
-    
+
     if (hosts.allowed) {
       for (const [uuid, hostname] of Object.entries(hosts.allowed)) {
         allowed.value.push({ uuid, hostname });
       }
     }
   } catch (error) {
-    console.error('Error loading authority:', error);
+    console.error("Error loading authority:", error);
   }
 }
 
@@ -174,17 +191,17 @@ async function allow(host) {
     await api.allowHost(host.uuid);
     await load();
   } catch (error) {
-    console.error('Error allowing host:', error);
+    console.error("Error allowing host:", error);
   }
 }
 
 async function allowAll() {
   try {
-    const promises = waiting.value.map(host => api.allowHost(host.uuid));
+    const promises = waiting.value.map((host) => api.allowHost(host.uuid));
     await Promise.all(promises);
     await load();
   } catch (error) {
-    console.error('Error allowing all hosts:', error);
+    console.error("Error allowing all hosts:", error);
   }
 }
 
@@ -193,21 +210,24 @@ async function revoke(host) {
     await api.revokeHost(host.uuid);
     await load();
   } catch (error) {
-    console.error('Error revoking host:', error);
+    console.error("Error revoking host:", error);
   }
 }
 
 async function revokeAll() {
   try {
-    const promises = allowed.value.map(host => api.revokeHost(host.uuid));
+    const promises = allowed.value.map((host) => api.revokeHost(host.uuid));
     await Promise.all(promises);
     await load();
   } catch (error) {
-    console.error('Error revoking all hosts:', error);
+    console.error("Error revoking all hosts:", error);
   }
 }
 
-const { startRefresh, stopRefresh, setRefreshInterval, interval } = useRefresh(load, 60);
+const { startRefresh, stopRefresh, setRefreshInterval, interval } = useRefresh(
+  load,
+  60,
+);
 
 function handleRefreshSettings(seconds) {
   setRefreshInterval(seconds);

@@ -1,4 +1,4 @@
-import { ref, onUnmounted } from 'vue';
+import { ref, onUnmounted } from "vue";
 
 /**
  * Composable pour gérer le rafraîchissement automatique
@@ -43,6 +43,6 @@ export function useRefresh(callback, defaultInterval = 60) {
     interval,
     startRefresh,
     stopRefresh,
-    setRefreshInterval
+    setRefreshInterval,
   };
 }

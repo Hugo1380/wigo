@@ -37,7 +37,7 @@ deps:
 
 build-frontend: deps
 	@echo "Building frontend"
-	cd src/public && npm run build
+	cd src/public && npm run pretty && npm run build
 
 releases: build-frontend
 	@echo "Building Wigo releases"
@@ -131,6 +131,7 @@ clean:
 	@rm -rf release
 	@rm -rf $(DEBROOT)
 	@rm -rf dev
+	@rm -rf public
 
 build-dev: deps
 	@echo "Building Wigo for development"
@@ -157,7 +158,9 @@ run-dev: build-dev
 			ln -s $(BASE_DIR)/probes/examples/$$probe $(BASE_DIR)/dev/probes/300/$$probe; \
 		fi; \
 	done; \
-	ln -s $(BASE_DIR)/lib $(BASE_DIR)/dev/lib; \
+	if [ ! -e $(BASE_DIR)/dev/lib ]; then \
+		ln -s $(BASE_DIR)/lib $(BASE_DIR)/dev/lib; \
+	fi; \
 	if [ ! -e $(BASE_DIR)/dev/wigo.crt ]; then \
 		(cd $(BASE_DIR)/dev && $(BASE_DIR)/release/current/generate_cert -ca=true -duration=87600h0m0s -host "127.0.0.1" --rsa-bits=4096;) \
 	fi; \
@@ -166,7 +169,7 @@ run-dev: build-dev
 	sleep 1; \
 	tail -f $(BASE_DIR)/dev/wigo.log 2>/dev/null & \
 	TAIL_PID=$$!; \
-	cd $(BASE_DIR)/src/public && npm run watch; \
+	cd $(BASE_DIR)/src/public && npm run pretty && npm run watch; \
 	EXIT_CODE=$$?; \
 	kill $$WIGO_PID $$TAIL_PID 2>/dev/null; \
 	wait $$WIGO_PID $$TAIL_PID 2>/dev/null; \

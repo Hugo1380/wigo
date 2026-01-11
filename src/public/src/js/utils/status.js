@@ -9,7 +9,7 @@ export const LOG_LEVELS = [
   "ERROR",
   "WARNING",
   "CRITICAL",
-  "EMERGENCY"
+  "EMERGENCY",
 ];
 
 export const STATUS_LEVELS = ["OK", "INFO", "WARNING", "CRITICAL", "ERROR"];
@@ -42,11 +42,11 @@ export function getLevel(status) {
  */
 export function getTextLevelClass(level) {
   const classes = {
-    "OK": "text-success",
-    "INFO": "text-primary",
-    "WARNING": "text-warning",
-    "CRITICAL": "text-danger",
-    "ERROR": "text-dark"
+    OK: "text-success",
+    INFO: "text-primary",
+    WARNING: "text-warning",
+    CRITICAL: "text-danger",
+    ERROR: "text-dark",
   };
   return classes[level] || "";
 }
@@ -58,11 +58,11 @@ export function getTextLevelClass(level) {
  */
 export function getBgLevelClass(level) {
   const classes = {
-    "OK": "bg-success",
-    "INFO": "bg-primary",
-    "WARNING": "bg-warning",
-    "CRITICAL": "bg-danger",
-    "ERROR": "bg-dark"
+    OK: "bg-success",
+    INFO: "bg-primary",
+    WARNING: "bg-warning",
+    CRITICAL: "bg-danger",
+    ERROR: "bg-dark",
   };
   return classes[level] || "";
 }
@@ -74,11 +74,11 @@ export function getBgLevelClass(level) {
  */
 export function getBadgeLevelClass(level) {
   const classes = {
-    "OK": "badge bg-success",
-    "INFO": "badge bg-primary",
-    "WARNING": "badge bg-warning",
-    "CRITICAL": "badge bg-danger",
-    "ERROR": "badge bg-dark"
+    OK: "badge bg-success",
+    INFO: "badge bg-primary",
+    WARNING: "badge bg-warning",
+    CRITICAL: "badge bg-danger",
+    ERROR: "badge bg-dark",
   };
   return classes[level] || "badge bg-secondary";
 }
@@ -90,11 +90,11 @@ export function getBadgeLevelClass(level) {
  */
 export function getBtnLevelClass(level) {
   const classes = {
-    "OK": "btn-success",
-    "INFO": "btn-primary",
-    "WARNING": "btn-warning",
-    "CRITICAL": "btn-danger",
-    "ERROR": "btn-dark"
+    OK: "btn-success",
+    INFO: "btn-info",
+    WARNING: "btn-warning",
+    CRITICAL: "btn-danger",
+    ERROR: "btn-dark",
   };
   return classes[level] || "btn-secondary";
 }
@@ -107,11 +107,11 @@ export function getBtnLevelClass(level) {
 export function getStatusRowClass(status) {
   const level = getLevel(status);
   const classes = {
-    "OK": "table-success",
-    "INFO": "table-info",
-    "WARNING": "table-warning",
-    "CRITICAL": "table-danger",
-    "ERROR": "table-dark"
+    OK: "table-success",
+    INFO: "table-info",
+    WARNING: "table-warning",
+    CRITICAL: "table-danger",
+    ERROR: "table-dark",
   };
   return classes[level] || "";
 }
@@ -124,13 +124,13 @@ export function getStatusRowClass(status) {
 export function getLogRowClass(logLevel) {
   const level = LOG_LEVELS[logLevel - 1];
   const classes = {
-    "DEBUG": "",
-    "OK": "table-success",
-    "INFO": "table-info",
-    "WARNING": "table-warning",
-    "CRITICAL": "table-danger",
-    "ERROR": "table-dark",
-    "EMERGENCY": "table-dark"
+    DEBUG: "",
+    OK: "table-success",
+    INFO: "table-info",
+    WARNING: "table-warning",
+    CRITICAL: "table-danger",
+    ERROR: "table-dark",
+    EMERGENCY: "table-dark",
   };
   return classes[level] || "";
 }
@@ -144,5 +144,5 @@ export function getLogRowClass(logLevel) {
 export function filterLogsByLevel(logs, minLevel) {
   const minIndex = LOG_LEVELS.indexOf(minLevel);
   if (minIndex === -1) return logs;
-  return logs.filter(log => log.Level >= minIndex + 1);
+  return logs.filter((log) => log.Level >= minIndex + 1);
 }

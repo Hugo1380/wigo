@@ -7,9 +7,3 @@
 <script setup>
 // Composant racine
 </script>
-
-<style scoped>
-#wrapper {
-  min-height: 100vh;
-}
-</style>
