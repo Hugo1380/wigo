@@ -17,7 +17,10 @@ endif
 
 build = go build
 
-.PHONY: release race build-dev run-dev
+.PHONY: all clean deps lint race release releases build-dev run-dev
+
+all: clean deps lint race release releases
+
 race:
 	@echo "Building with race detector (current OS)"
 	@mkdir -p release
@@ -26,8 +29,6 @@ race:
 	GORACE="halt_on_error=1" go build -race -o current/wigo $(BASE_DIR)/src/wigo.go; \
 	GORACE="halt_on_error=1" go build -race -o current/wigocli $(BASE_DIR)/src/wigocli.go; \
 	go build -o current/generate_cert $(BASE_DIR)/src/generate_cert.go
-
-all: clean lint release releases
 
 deps:
 	@echo "Installing dependencies"
