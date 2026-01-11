@@ -144,7 +144,6 @@ build-dev: deps
 
 run-dev: build-dev
 	@echo "Starting Wigo development server"
-	@trap 'echo "Cleaning up Wigo process..."; kill $$WIGO_PID 2>/dev/null; wait $$WIGO_PID 2>/dev/null; exit' INT TERM EXIT; \
 	mkdir -p $(BASE_DIR)/dev; \
 	mkdir -p $(BASE_DIR)/dev/probes/; \
 	if [ ! -d $(BASE_DIR)/dev/probes/60 ]; then mkdir -p $(BASE_DIR)/dev/probes/60; fi; \
